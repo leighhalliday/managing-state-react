@@ -1,17 +1,17 @@
-# How I Manage State in React
+# Como Manejo State en React
 
 When I'm building a React app, how do I manage state?
 
-## App State
+## State de la App
 
-Keep state as low as possible.
+Mantener state lo mas profundo que puedes.
 
-1. Local State
-2. Lift State
-3. Global State (with contexts)
+1. Local State `useState`
+2. Levantar State
+3. Global State (con Context)
 
-Once you are dealing with Global State, you're welcome to use MobX, Redux, Overmind, Zustand, Recoil, etc... or just stick with `useState`.
+Cuando llegues al punto de usar Global State, ya puedes usar MobX, Redux, Overmind, Zustand, Recoil, etc... todos usan context para saltar niveles y evitar pasar props... o simplemente usar useState.
 
-## External Data
+## State del Servidor
 
 React Query, SWR, Apollo Client, urql

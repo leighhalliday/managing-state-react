@@ -2,70 +2,69 @@ import { useState, memo, createContext, useContext } from "react";
 import { useQuery } from "react-query";
 import styles from "../styles/Home.module.css";
 
+// `https://restcountries.eu/rest/v2/alpha/CA`
+
+const ContextPais = createContext();
+
+function PaisProvider({ children }) {
+  const [pais, setPais] = useState("CA");
+
+  return (
+    <ContextPais.Provider value={{ pais, setPais }}>
+      {children}
+    </ContextPais.Provider>
+  );
+}
+
 export default function Home() {
   return (
-    <CountryProvider>
-      <HomeContent />
-    </CountryProvider>
+    <PaisProvider>
+      <PaisContenido />
+    </PaisProvider>
   );
 }
 
-const HomeContent = memo(() => {
+function PaisContenido() {
   return (
     <div className={styles.container}>
-      <CountryPicker />
-      <CountryDetails />
+      <EscogerPais />
+      <MostrarPais />
     </div>
   );
-});
-
-const CountryContext = createContext();
-
-function CountryProvider({ children }) {
-  const [country, setCountry] = useState("CA");
-
-  return (
-    <CountryContext.Provider value={{ country, setCountry }}>
-      {children}
-    </CountryContext.Provider>
-  );
 }
 
-async function fetchCountry(country) {
-  const response = await fetch(
-    `https://restcountries.eu/rest/v2/alpha/${country}`
-  );
-  const data = await response.json();
-  return data;
-}
-
-function CountryDetails() {
-  const { country } = useContext(CountryContext);
-  const { data, isLoading, error } = useQuery([country], fetchCountry);
-
-  if (isLoading) return <span>loading...</span>;
-  if (error) return <span>oop!! error occurred</span>;
+function EscogerPais() {
+  const { pais, setPais } = useContext(ContextPais);
 
   return (
     <div>
-      <h1>{country}</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <select value={pais} onChange={(event) => setPais(event.target.value)}>
+        <option value="CA">Canada</option>
+        <option value="CO">Colombia</option>
+      </select>
     </div>
   );
 }
 
-function CountryPicker() {
-  const { country, setCountry } = useContext(CountryContext);
+const fetchPais = async (pais) => {
+  const result = await fetch(`https://restcountries.eu/rest/v2/alpha/${pais}`);
+  const data = await result.json();
+  return data;
+};
+
+function MostrarPais() {
+  const { pais } = useContext(ContextPais);
+  const { data, isLoading, error } = useQuery([pais], fetchPais);
+
+  if (isLoading) return <span>loading...</span>;
+  if (error) return <span>oops! error</span>;
 
   return (
-    <select
-      value={country}
-      onChange={(event) => {
-        setCountry(event.target.value);
-      }}
-    >
-      <option value="CA">Canada</option>
-      <option value="CO">Colombia</option>
-    </select>
+    <div>
+      <h1>
+        {data.name} | {data.capital}
+      </h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
   );
 }
